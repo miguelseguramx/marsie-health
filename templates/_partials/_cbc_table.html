@@ -1,0 +1,35 @@
+<table class="cbc-table">
+    <thead>
+        <tr>
+            <th class="cbc-table__cell cbc-table__cell--head">Analito</th>
+            <th class="cbc-table__cell cbc-table__cell--head">Valor</th>
+            <th class="cbc-table__cell cbc-table__cell--head">Unidad</th>
+            <th class="cbc-table__cell cbc-table__cell--head">Rango referencia</th>
+            <th class="cbc-table__cell cbc-table__cell--head">Indicador</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for r in cbc_results %}
+        <tr class="cbc-table__row cbc-table__row--{{ r.flag|default:'normal' }}">
+            <td class="cbc-table__cell">
+                <strong>{{ r.analyte.code }}</strong>
+                <span class="cbc-table__analyte-name">{{ r.analyte.name_es }}</span>
+            </td>
+            <td class="cbc-table__cell cbc-table__cell--value">{{ r.value }}</td>
+            <td class="cbc-table__cell">{{ r.unit }}</td>
+            <td class="cbc-table__cell">
+                {% if r.ref_range_low is not None and r.ref_range_high is not None %}
+                    {{ r.ref_range_low }}–{{ r.ref_range_high }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td class="cbc-table__cell">
+                <span class="cbc-table__flag cbc-table__flag--{{ r.flag|default:'normal' }}">
+                    {{ r.get_flag_display|default:"Normal" }}
+                </span>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Portal del paciente — marsie health{% endblock %}
+{% block title %}Resultado — marsie health{% endblock %}
 {% block body_class %}page--dashboard{% endblock %}
 
 {% block content %}
 <div class="dashboard dashboard--patient">
     <header class="dashboard__header">
-        <h1 class="dashboard__title">Portal del paciente</h1>
+        <h1 class="dashboard__title">Resultado de hemograma</h1>
         <nav class="dashboard__nav">
+            <a class="button button--ghost" href="{% url 'patients:results' %}">Volver</a>
             <span class="dashboard__user">{{ request.user.email }}</span>
             <form method="post" action="{% url 'logout' %}" class="dashboard__logout">
                 {% csrf_token %}
@@ -17,13 +18,11 @@
     </header>
     <main class="dashboard__main">
         <section class="card">
-            <h2 class="card__title">Bienvenido</h2>
-            <p class="card__body">Aquí podrás ver tus resultados de laboratorio.</p>
-            <p>
-                <a class="button button--primary" href="{% url 'patients:results' %}">
-                    Ver mis resultados
-                </a>
-            </p>
+            <h2 class="card__title">{{ report.lab.name }}</h2>
+            <p class="card__body">Recibido: {{ report.uploaded_at|date:"d/m/Y H:i" }}</p>
+        </section>
+        <section class="card">
+            {% include "_partials/_cbc_table.html" %}
         </section>
     </main>
 </div>

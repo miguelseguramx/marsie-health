@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Reportes del laboratorio — marsie health{% endblock %}
+{% block body_class %}page--dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard dashboard--lab">
+    <header class="dashboard__header">
+        <h1 class="dashboard__title">Reportes del laboratorio</h1>
+        <nav class="dashboard__nav">
+            <a class="button button--ghost" href="{% url 'labs:dashboard' %}">Inicio</a>
+            <span class="dashboard__user">{{ request.user.email }}</span>
+            <form method="post" action="{% url 'logout' %}" class="dashboard__logout">
+                {% csrf_token %}
+                <button type="submit" class="button button--ghost">Cerrar sesión</button>
+            </form>
+        </nav>
+    </header>
+    <main class="dashboard__main">
+        {% if reports %}
+        <section class="card">
+            <ul class="report-list">
+                {% for report in reports %}
+                <li class="report-list__item">
+                    <a class="report-list__link" href="{% url 'labs:result_detail' report.id %}">
+                        <span class="report-list__title">
+                            {% if report.patient %}
+                                {{ report.patient.user.get_full_name|default:report.patient.user.email }}
+                            {% else %}
+                                <em>Paciente sin asignar</em>
+                            {% endif %}
+                        </span>
+                        <span class="report-list__meta">
+                            {{ report.lab.name }} · {{ report.uploaded_at|date:"d/m/Y" }}
+                            · {{ report.get_status_display }}
+                        </span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% else %}
+        <section class="card">
+            <h2 class="card__title">Sin reportes</h2>
+            <p class="card__body">No hay reportes registrados para este laboratorio.</p>
+        </section>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

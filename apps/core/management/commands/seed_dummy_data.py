@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from apps.lab_results.models import Analyte, CBCResult
-from apps.labs.models import Lab, LabReport
+from apps.labs.models import Lab, LabAdminMembership, LabReport
 from apps.patients.models import Patient
 from apps.physicians.models import CareRelationship, Physician
 
@@ -20,6 +20,13 @@ LAB = {
     "name": "Acme Diagnostics",
     "slug": "acme-lab",
     "contact_email": "contact@acme-lab.test",
+}
+
+LAB_ADMIN = {
+    "email": "labadmin@acme-lab.test",
+    "username": "acme.admin",
+    "first_name": "Acme",
+    "last_name": "Admin",
 }
 
 PATIENTS = [
@@ -151,6 +158,7 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **opts):
         lab = self._lab()
+        self._lab_admin(lab)
         patients = self._patients()
         physicians = self._physicians()
         care_count = self._care_relationships(physicians, patients)
@@ -159,8 +167,9 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Seeded: 1 lab, {len(patients)} patients, {len(physicians)} physicians, "
-                f"{care_count} care relationships, {len(reports)} reports, {cbc_count} CBC results."
+                f"Seeded: 1 lab + 1 lab admin, {len(patients)} patients, "
+                f"{len(physicians)} physicians, {care_count} care relationships, "
+                f"{len(reports)} reports, {cbc_count} CBC results."
             )
         )
 
@@ -171,6 +180,25 @@ class Command(BaseCommand):
         )
         self._log(f"Lab {lab.slug}", created)
         return lab
+
+    def _lab_admin(self, lab: Lab) -> None:
+        User = get_user_model()
+        group = Group.objects.get(name="LabAdmin")
+        user, user_created = User.objects.get_or_create(
+            email=LAB_ADMIN["email"],
+            defaults={
+                "username": LAB_ADMIN["username"],
+                "first_name": LAB_ADMIN["first_name"],
+                "last_name": LAB_ADMIN["last_name"],
+            },
+        )
+        if user_created:
+            user.set_password(DUMMY_PASSWORD)
+            user.save()
+        user.groups.add(group)
+
+        _, m_created = LabAdminMembership.objects.get_or_create(user=user, lab=lab)
+        self._log(f"LabAdmin {LAB_ADMIN['email']} @ {lab.slug}", user_created or m_created)
 
     def _patients(self) -> dict[str, Patient]:
         User = get_user_model()
