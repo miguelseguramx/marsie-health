@@ -1,0 +1,12 @@
+{% load sass_tags %}<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}marsie health{% endblock %}</title>
+    <link rel="stylesheet" href="{% sass_src 'scss/main.scss' %}">
+</head>
+<body class="page {% block body_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+</body>
+</html>

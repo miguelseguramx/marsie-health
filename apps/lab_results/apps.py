@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class HemogramasConfig(AppConfig):
+class LabResultsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "apps.hemogramas"
+    name = "apps.lab_results"

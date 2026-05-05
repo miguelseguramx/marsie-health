@@ -21,8 +21,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "sass_processor",
     "apps.core",
-    "apps.hemogramas",
+    "apps.accounts",
+    "apps.patients",
+    "apps.physicians",
+    "apps.labs",
+    "apps.lab_results",
 ]
 
 MIDDLEWARE = [
@@ -40,7 +45,7 @@ ROOT_URLCONF = "marsie_health.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -57,12 +62,17 @@ ASGI_APPLICATION = "marsie_health.asgi.application"
 
 DATABASES = {"default": env.db("DATABASE_URL")}
 
+AUTH_USER_MODEL = "accounts.User"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+LOGIN_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/login/"
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
@@ -71,6 +81,16 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
+]
+
+SASS_PROCESSOR_ROOT = STATIC_ROOT
+SASS_PROCESSOR_INCLUDE_DIRS = [BASE_DIR / "static" / "scss"]
+SASS_OUTPUT_STYLE = "compressed"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

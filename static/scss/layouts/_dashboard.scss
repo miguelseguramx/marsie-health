@@ -1,0 +1,50 @@
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: $space-5;
+        padding: $space-4 $space-6;
+        background: $color-surface;
+        border-bottom: 1px solid $color-border;
+    }
+
+    &__title {
+        font-size: 1.25rem;
+    }
+
+    &__nav {
+        display: flex;
+        align-items: center;
+        gap: $space-4;
+    }
+
+    &__user {
+        color: $color-text-mute;
+        font-size: 0.95rem;
+    }
+
+    &__logout {
+        margin: 0;
+    }
+
+    &__main {
+        flex: 1;
+        padding: $space-6;
+        max-width: $max-content-width;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: $space-5;
+    }
+
+    // Per-portal accent
+    &--patient &__title { color: $color-primary; }
+    &--physician &__title { color: #047857; }
+    &--lab &__title { color: #b45309; }
+}

@@ -60,6 +60,8 @@ db.sqlite3
 db.sqlite3-journal
 staticfiles/
 media/
+static/scss/*.css
+static/scss/*.css.map
 
 # Environments
 .env

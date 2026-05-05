@@ -1,4 +1,4 @@
-.PHONY: help up down build logs shell migrate makemigrations superuser test lint format check
+.PHONY: help up down build logs shell migrate makemigrations superuser test lint format check assets seed
 
 help:
 	@echo "Common targets:"
@@ -14,6 +14,8 @@ help:
 	@echo "  make lint             Run ruff check"
 	@echo "  make format           Run ruff format"
 	@echo "  make check            Lint + tests"
+	@echo "  make assets           Compile SCSS and collect static files"
+	@echo "  make seed             Load dummy domain data (idempotent)"
 
 up:
 	docker compose up
@@ -49,3 +51,10 @@ format:
 	docker compose exec web ruff format .
 
 check: lint test
+
+assets:
+	docker compose exec web python manage.py compilescss
+	docker compose exec web python manage.py collectstatic --noinput
+
+seed:
+	docker compose exec web python manage.py seed_dummy_data
