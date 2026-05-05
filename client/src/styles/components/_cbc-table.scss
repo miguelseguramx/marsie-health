@@ -1,0 +1,25 @@
+@use "../variables" as *;
+
+.cbc-table {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+
+    &__cell--value {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+    }
+
+    &__section-header {
+        margin: 0 0 $space-2;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: $color-text-mute;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    &__row--low &__cell--value { color: $color-cbc-low; }
+    &__row--high &__cell--value { color: $color-error; }
+    &__row--critical &__cell--value { color: $color-error; font-weight: 700; }
+}

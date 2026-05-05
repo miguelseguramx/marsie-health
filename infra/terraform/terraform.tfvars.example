@@ -1,0 +1,5 @@
+aws_region  = "us-east-1"
+environment = "dev"
+
+# Bucket names are globally unique. Pick something with your initials + env.
+bucket_name = "marsie-reports-CHANGEME-dev"

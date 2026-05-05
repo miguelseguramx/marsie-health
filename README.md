@@ -50,6 +50,18 @@ See `.env.example` for the full list. Notable ones:
 - `DJANGO_ALLOWED_HOSTS` — comma-separated.
 - `DATABASE_URL` — Postgres connection string consumed by `django-environ`.
 
+## S3 setup (one-time per developer)
+
+Lab-Admin report uploads land in a private S3 bucket per developer.
+
+1. Provision the bucket and IAM uploader user — see `infra/terraform/README.md`.
+2. Paste the four outputs into `.env` (`AWS_S3_BUCKET`, `AWS_S3_REGION`,
+   `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`).
+3. Restart the web container: `make down && make up`.
+
+Tests use `moto` to mock S3 in-process — no AWS credentials are required to
+run the suite.
+
 ## Deployment
 
 The Dockerfile defaults to `runserver` for local development. For production,

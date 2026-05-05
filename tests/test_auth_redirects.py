@@ -1,57 +1,85 @@
 import pytest
-from django.test import Client
+from rest_framework.test import APIClient
+
+
+@pytest.fixture
+def api_client():
+    return APIClient()
 
 
 @pytest.mark.django_db
-def test_patient_login_lands_on_patient_portal(patient_user):
-    client = Client()
-    response = client.post(
-        "/login/",
-        {"username": patient_user.email, "password": "pw-patient-1"},
+def test_patient_login_returns_jwt_with_role(api_client, patient_user):
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": patient_user.email, "password": "pw-patient-1"},
+        format="json",
     )
-    assert response.status_code == 302
-    assert response.url == "/patient/"
+    assert response.status_code == 200
+    assert set(response.data.keys()) >= {"access", "refresh", "email", "role"}
+    assert response.data["email"] == patient_user.email
+    assert response.data["role"] == "Patient"
 
 
 @pytest.mark.django_db
-def test_physician_login_lands_on_physician_portal(physician_user):
-    client = Client()
-    response = client.post(
-        "/login/",
-        {"username": physician_user.email, "password": "pw-doc-1"},
+def test_physician_login_returns_jwt_with_role(api_client, physician_user):
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": physician_user.email, "password": "pw-doc-1"},
+        format="json",
     )
-    assert response.status_code == 302
-    assert response.url == "/physician/"
+    assert response.status_code == 200
+    assert response.data["email"] == physician_user.email
+    assert response.data["role"] == "Physician"
 
 
 @pytest.mark.django_db
-def test_lab_admin_login_lands_on_lab_portal(lab_admin_user):
-    client = Client()
-    response = client.post(
-        "/login/",
-        {"username": lab_admin_user.email, "password": "pw-lab-1"},
+def test_lab_admin_login_returns_jwt_with_role(api_client, lab_admin_user):
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": lab_admin_user.email, "password": "pw-lab-1"},
+        format="json",
     )
-    assert response.status_code == 302
-    assert response.url == "/lab/"
+    assert response.status_code == 200
+    assert response.data["email"] == lab_admin_user.email
+    assert response.data["role"] == "LabAdmin"
 
 
 @pytest.mark.django_db
-def test_unrolled_user_lands_on_root(unrolled_user):
-    client = Client()
-    response = client.post(
-        "/login/",
-        {"username": unrolled_user.email, "password": "pw-nobody"},
+def test_unrolled_user_login_returns_null_role(api_client, unrolled_user):
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": unrolled_user.email, "password": "pw-nobody"},
+        format="json",
     )
-    assert response.status_code == 302
-    assert response.url == "/"
+    assert response.status_code == 200
+    assert response.data["email"] == unrolled_user.email
+    assert response.data["role"] is None
 
 
 @pytest.mark.django_db
-def test_login_respects_next_parameter(patient_user):
-    client = Client()
-    response = client.post(
-        "/login/?next=/patient/some-path/",
-        {"username": patient_user.email, "password": "pw-patient-1"},
+def test_login_with_bad_password_returns_401(api_client, patient_user):
+    response = api_client.post(
+        "/api/auth/login/",
+        {"email": patient_user.email, "password": "wrong"},
+        format="json",
     )
-    assert response.status_code == 302
-    assert response.url == "/patient/some-path/"
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_me_endpoint_returns_email_and_role(api_client, physician_user):
+    login = api_client.post(
+        "/api/auth/login/",
+        {"email": physician_user.email, "password": "pw-doc-1"},
+        format="json",
+    )
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+    response = api_client.get("/api/auth/me/")
+    assert response.status_code == 200
+    assert response.data == {"email": physician_user.email, "role": "Physician"}
+
+
+@pytest.mark.django_db
+def test_me_endpoint_unauthenticated_returns_401(api_client):
+    response = api_client.get("/api/auth/me/")
+    assert response.status_code == 401

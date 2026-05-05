@@ -29,5 +29,18 @@ services:
       db:
         condition: service_healthy
 
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    command: npm run dev
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - web
+
 volumes:
   pg_data:
